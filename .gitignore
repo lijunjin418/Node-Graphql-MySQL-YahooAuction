@@ -1,0 +1,9 @@
+.env
+.env.local
+dist
+package-lock.json
+yarn.lock
+node_modules
+.idea
+.vscode
+*.log

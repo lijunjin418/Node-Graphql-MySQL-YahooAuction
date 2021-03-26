@@ -1,0 +1,547 @@
+# type Subscription {
+#   newUser: User!
+# # }
+
+scalar DateTime
+scalar Date
+scalar BigInt
+scalar BigIntR
+scalar Long
+scalar JSON
+type Query {
+    info: String!,
+    topCategory: [Category!]!,
+    currentCategory(CategoryId: Int!): Category!,
+    productList(CategoryId: Int,
+                keyword:String,
+                page: Int, 
+                sort: String, 
+                order: String, 
+                aucmaxprice:Int, 
+                aucminprice:Int,
+                store:Int,
+                status:Int,
+                ): ProductList!,
+    hotProduct: [HotProduct!]!,
+    config:[Config!]!,
+    roles:[Role!]!
+    auctionItem(AuctionID: String!): AuctionItem!,
+    allUsers(
+        page:  Int!,
+        limit: Int!,
+        name:  String,
+        phone: String,
+        active:Int!
+        ): AllUser!,
+    allAdmins: AllUser!,
+    getUser(id: Int!): User!,
+    recvAddress(userId: ID): [ReciveAddress]
+    bidhistory(
+        page:  Int!,
+        limit: Int!,
+        userId: ID,
+        AuctionID: String, 
+        exitTime: Int, 
+        bidType: String, 
+        dateFrom:String, 
+        dateTo:String
+        ): BidHistory!
+    getCnArea(region_id:String!):[CnArea],
+    yahooAccount: [YahooUser]
+    existItem(index: String!, val: String!, id: ID): ResStatus!
+    userInfo: User!
+    getShoucang(userId:ID, page:Int!, limit:Int!,): BidShoucang!
+    apiWonList:ResStatus
+    WonList(
+        page:       Int!,
+        limit:      Int!,
+        userId:     Int,
+        AuctionID:  String,
+        process:    Int,
+        failed:     Boolean
+    ):AllBidWon
+    banner:[Banner]
+    uploads: [File]
+    helpTree:[helpTree]
+}
+
+type Mutation {
+    signup(email: String!, password: String!, name: String!): AuthPayload
+    login(email: String!, password: String!): AuthPayload
+    resetpassword(curPassword: String!, newPassword: String!): ResStatus
+    bidding(
+        AuctionID:  String!, 
+        userId:     Int!, 
+        Seller:     String!, 
+        bidPrice:   Int!, 
+        bidType:    String!, 
+        img:    String!, 
+        exitTime:   BigIntR!
+        ): ResStatus
+    addShoucang(
+        AuctionID:  String!, 
+        userId:     Int, 
+        Title:      String, 
+        img:        String, 
+        exitTime:   BigIntR!
+        ): ResStatus
+    upsertYahooAccount(
+        id: ID, 
+        name:       String!, 
+        password:   String!, 
+        status:     Int!,  
+        cookie:     String!
+        ): ResStatus
+    updateAuctionStatus(id: ID, status:Int!): ResStatus
+    delAuctionAccount(id: ID): ResStatus
+    delUser(id: ID): ResStatus    
+    delHistory(ids: String!): ResStatus!
+    delWonList(AuctionIDs: String!): ResStatus!  
+    delShoucang(id: ID!): ResStatus    
+    checkProcess(processId: Int!, AuctionIDs: String!, msg: String): ResStatus    
+    delAdmin(id: ID): ResStatus    
+    addUser(
+        name:       String!
+        password:   String!
+        email:      String,
+        active:     Int!,
+        phone:      String,
+        roles:      Int
+    ): ResStatus    
+    updateUserActive(id: ID, status:Int!): ResStatus
+    updateUser( id: ID, 
+                phone:      String
+                email:      String 
+                name:       String
+                sex:        Int!
+                password:   String
+                birth:      String
+                IdNumber:   String
+                aCountry:   String!
+                aProvince:  String
+                aCounty:    String
+                aCity:      String
+                aAddress:   String
+                active:     Int!
+                postalCode:   String
+                ): ResStatus!
+    recvAddress( 
+                id:         ID
+                userId:     ID
+                RecvName:   String!, 
+                phone:      String!,                 
+                IdNumber:   String,
+                aCountry:   String!,
+                aProvince:  String!,
+                aCounty:    String,
+                aCity:      String,
+                aAddress:   String!,
+                postalCode:   String!
+                ): ResStatus!
+    delAddress(id: ID): ResStatus
+    sendSMS(countryCode: String, phone: String): ResStatus
+    compareSMS(code: String): ResStatus
+    singleUpload(file: Upload!): File!
+    addBanner(title: String, img:String!, bg_color:String): ResStatus
+    updateBanner(id:ID!, title: String, img:String!, bg_color:String): ResStatus
+    delBanner(ids:String!): ResStatus
+    addConfig(item: String!, val:String!): ResStatus
+    updateConfig(id:ID!, item: String, val:String!): ResStatus
+    delConfig(ids:String!): ResStatus
+    addHelpTree(name: String!, pid:ID, orders:Int): ResStatus
+    updateHelpTree(id:ID!, name: String, pid:Int, orders:Int): ResStatus
+    delHelpTree(ids:String!): ResStatus
+}
+type helpTree{
+    id: ID!
+    name: String!
+    pid: Int!
+    orders: Int
+    createdAt: DateTime
+    updatedAt: DateTime
+}
+type Banner {
+    id: ID!
+    title: String
+    img:    String!
+    bg_color: String
+    createdAt: DateTime
+    updatedAt: DateTime
+}
+type AuthPayload {
+    token: String
+    user: User   
+}
+
+type BidHistory {
+    total: Int!
+    items: [BidHistoryItems]
+}
+type BidShoucang {
+    total: Int!
+    items: [BidShoucangItems]
+}
+type BidHistoryItems {
+    id: ID!
+    userId: ID!
+    createdAt: DateTime!
+    AuctionID: String!
+    Title: String
+    price: Int!
+    img: String
+    exitTime:BigInt!
+}
+type BidShoucangItems {
+    id: ID!
+    userId: ID
+    AuctionID: String!
+    Title: String
+    img: String
+    exitTime:BigInt!
+    createdAt: DateTime!
+}
+type CnArea{
+    region_id: String!
+    region_name: String!
+}
+type AllUser{
+    total:  Int!
+    items:  [User]
+}
+type AllBidWon{
+    total:  Int!
+    items:  [BidWon]
+}
+type User {
+    id: ID!
+    name: String!
+    email: String
+    roles: [Role]!
+    phone: String
+    birth:  Date
+    sex:    Int!
+    IdNumber: String
+    aCountry: String
+    aProvince: String
+    aCounty: String
+    aCity: String
+    aAddress: String
+    postalCode: String
+    verified: Int!
+    active: Int!
+    createdAt: DateTime
+    updatedAt: DateTime
+}
+type BidWon {
+    AuctionID:          String!
+    Title:              String!
+    WonPrice:           BigInt!
+    Bids:               Int!
+    ImageUrl:           String!
+    Seller:             JSON
+    Message:            JSON
+    Progresses:         JSON
+    exitTime:           BigInt
+    AuctionItemUrl:     String
+    ContactUrl:         String
+    YahooAccountId:     Int!
+    userId:             Int
+    st_a_1pay_req:      DateTime
+    st_u_1paid_val:     BigInt
+    st_u_1paidAt:       DateTime
+    st_a_1paid_y:       DateTime
+    st_a_store_jp:      DateTime
+    st_a_ship_type_req: DateTime
+    st_u_ship_type:     String
+    st_a_ship_type_y:   DateTime
+    st_a_store_cn:      DateTime
+    st_u_2paid_val:     BigInt
+    failed:             String
+    createdAt:          DateTime
+    updatedAt:          DateTime
+}
+type ReciveAddress {
+    id:         ID!
+    userId:     BigInt!
+    RecvName:   String!
+    phone:      String!
+    IdNumber:   String
+    aCountry:   String!
+    aProvince:  String!
+    aCounty:    String!
+    aCity:      String!
+    aAddress:   String!
+    postalCode: String!
+    verified:   Boolean!
+    active:     Boolean!
+    createdAt:  DateTime!
+    updatedAt:  DateTime!
+}
+type YahooUser {
+    id: ID!
+    name: String!
+    password: String!
+    cookie: String!
+    active: Int
+    status: Int
+    createdAt: DateTime
+    updatedAt: DateTime
+}
+type Config {  
+    id: ID 
+    item: String!
+    val: String! 
+    createdAt: DateTime
+    updatedAt: DateTime
+}
+type ResStatus{
+    error:  Int!
+    msg:    String
+    res:    ResIdCre!
+}
+type ResIdCre{
+    id: ID!
+    createdAt: DateTime!
+}
+type Role{
+    id: Int
+    name: String
+}
+type Category {
+    id: ID!
+    CategoryId: Int!
+    CategoryName: String!
+    CategoryNameCn: String!
+    CategoryPath: String!
+    CategoryPathCn: String!
+    CategoryIdPath: String!
+    NumOfAuctions: Int
+    ParentCategoryId: Int!
+    IsLeaf: Boolean!
+    Depth: Int!
+    Order: Int!
+    IsLink: Boolean!
+    IsAdult: Boolean!
+    IsLeafToLink: Boolean!
+    ChildCategory: [Category!]
+}
+
+type Rating {
+    Point: Int
+    TotalGoodRating: Int
+    TotalNormalRating: Int
+    TotalBadRating: Int
+    SellerTotalGoodRating: Int
+    SellerTotalNormalRating: Int
+    SellerTotalBadRating: Int
+    IsSuspended: Boolean!
+    IsDeleted: Boolean!
+}
+
+type Seller {
+    Id: String!
+    ItemListUrl: String
+    RatingUrl: String
+    Rating: Rating
+}
+
+type Buyer {
+    Id: String!
+    ItemListUrl: String
+    RatingUrl: String
+    Rating: Rating
+}
+
+type Image {
+    Url: String!
+    Width: String!
+    Height: String!
+}
+
+type Option {
+    NewIcon: String
+    StoreIcon: String
+    CheckIcon: String
+    PublicIcon: String
+    FeaturedIcon: String
+    FreeshippingIcon: String
+    NewItemIcon: String
+    WrappingIcon: String
+    BuynowIcon: String
+    EasyPaymentIcon: String
+    GiftIcon: String
+    PointIcon: String
+    CharityOptionIcon: String
+    IsBold: Boolean
+    IsBackGroundColor: Boolean
+    IsOffer: Boolean
+    IsCharity: Boolean
+    IsTradingNaviAuction: Boolean
+}
+
+type Product {
+    AuctionID: String!
+    Title: String!
+    Seller: Seller!
+    ItemUrl: String!
+    AuctionItemUrl: String!
+    Image: Image!
+    CurrentPrice: Float!
+    Bids: Int!
+    EndTime: String!
+    BidOrBuy: Float
+    IsReserved: Boolean!
+    Option: Option!
+    IsAdult: Boolean!
+}
+
+type ProductList {
+    total: Int!
+    limit: Int!
+    offset: Int!
+    Product: [Product!]!
+}
+
+type HotProduct {
+    CategoryNameCn: String!
+    Product: [Product!]!
+}
+
+type HighestBidders {
+    totalHighestBidders: Int!
+    Bidder: [Buyer]!
+    IsMore: Boolean!
+}
+
+type ItemStatus {
+    Condition: String!
+    Comment: String
+}
+
+type ItemReturnable {
+    Allowed: Boolean!
+    Comment: String
+}
+
+type EasyPayment {
+    SafeKeepingPayment: Float
+    IsCreditCard: Boolean
+    IsPayPay: Boolean
+    IsNetBank: Boolean
+    AllowInstallment: Boolean
+}
+
+type Bank {
+    totalBankMethodAvailable: Int
+    Method: [String]
+}
+type BankS {
+    totalBankMethodAvailable: Int
+    Method: String
+}
+# union Bank = BankA | BankS
+
+type OtherPayment {
+    totalOtherMethodAvailable: Int
+    Method: String
+} 
+
+type Payment {
+    EasyPayment: EasyPayment
+    Bank: Bank
+    CashRegistration: String
+    PostalTransfer: String
+    PostalOrder: String
+    CashOnDelivery: String
+    CreditCard: String
+    Loan: String
+    Other: OtherPayment
+}
+
+type ShippingMethod {
+    Name: String!
+    SinglePrice: Float
+    PriceURL: String
+}
+
+type Shipping {
+    totalShippingMethodAvailable: Int
+    Method: ShippingMethod
+}
+
+type BaggageInfo {
+    Size: String!
+    Weight: String!
+}
+
+enum AuctionItemChargeForShipping {
+    seller
+    winner
+}
+
+enum AuctionItemShipTime {
+    after
+    before
+}
+
+enum AuctionItemStatus {
+    open
+    closed
+    cancelled
+}
+
+type AuctionItem {
+    AuctionID: String!
+    CategoryID: Int!
+    CategoryNameCn: String!
+    CategoryPath: String!
+    CategoryPathCn: String!
+    CategoryIdPath: String!
+    Title: String!
+    Seller: Seller!
+    AuctionItemUrl: String!
+    Img: [Image!]!
+    Initprice: Float!
+    Price: Float!
+    Quantity: Int!
+    AvailableQuantity: Int!
+    Bids: Int!
+    HighestBidders: HighestBidders!
+    YPoint: Float
+    ItemStatus: ItemStatus!
+    ItemReturnable: ItemReturnable!
+    StartTime: String!
+    EndTime: String!
+    Bidorbuy: String
+    TaxRate: Int
+    TaxinPrice: Float
+    TaxinBidorbuy: Float
+    Reserved: String
+    IsBidCreditRestrictions: Boolean!
+    IsBidderRestrictions: Boolean!
+    IsBidderRatioRestrictions: Boolean!
+    IsEarlyClosing: Boolean!
+    IsAutomaticExtension: Boolean!
+    IsOffer: Boolean!
+    IsCharity: Boolean!
+    Option: Option!
+    Description: String!
+    Payment: Payment!
+    BlindBusiness: String!
+    SevenElevenReceive: String!
+    ChargeForShipping: AuctionItemChargeForShipping
+    Location: String
+    IsWorldwide: Boolean!
+    ShipTime: AuctionItemShipTime
+    Shipping: Shipping
+    BaggageInfo: BaggageInfo
+    IsAdult: Boolean!
+    AnsweredQAndANum: Int!
+    Status: AuctionItemStatus!
+}
+type File {
+    # filename: String!
+    # mimetype: String!
+    # encoding: String!
+    id:ID
+}
